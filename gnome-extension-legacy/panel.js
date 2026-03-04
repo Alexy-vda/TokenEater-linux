@@ -1,11 +1,11 @@
-// GNOME 45+ panel indicator for TokenEater (ESModules).
-import GObject from 'gi://GObject';
-import St from 'gi://St';
-import GLib from 'gi://GLib';
-import Clutter from 'gi://Clutter';
-import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
-import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
-import { TokenEaterDBusClient } from './dbus.js';
+// GNOME 42-compatible panel indicator for TokenEater.
+// Uses imports.gi.* and imports.ui.* (compatible with GNOME 42-48).
+
+const { GObject, St, GLib, Clutter } = imports.gi;
+const PanelMenu = imports.ui.panelMenu;
+const PopupMenu = imports.ui.popupMenu;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+const { TokenEaterDBusClient } = Me.imports.dbus;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -34,7 +34,7 @@ function formatTimeLeft(resetsAtISO) {
 function pacingLabel(pacing) {
     if (!pacing) return '';
     const sign  = pacing.delta >= 0 ? '+' : '';
-    const emoji = { chill: '\u{1F60E}', onTrack: '\u2705', hot: '\u{1F525}' }[pacing.zone] || '';
+    const emoji = { chill: '😎', onTrack: '✅', hot: '🔥' }[pacing.zone] || '';
     return `Pacing: ${emoji} ${sign}${pacing.delta.toFixed(0)}%`;
 }
 
@@ -65,7 +65,7 @@ function makeMetricRow(label, pct, subtitle) {
 
 // ─── Indicator ────────────────────────────────────────────────────────────────
 
-export const TokenEaterIndicator = GObject.registerClass(
+var TokenEaterIndicator = GObject.registerClass(
 class TokenEaterIndicator extends PanelMenu.Button {
     _init(extension) {
         super._init(0.0, 'TokenEater');
@@ -73,7 +73,7 @@ class TokenEaterIndicator extends PanelMenu.Button {
 
         // Status bar label
         this._label = new St.Label({
-            text: '\u25C9 \u2026',
+            text: '◉ …',
             y_align: Clutter.ActorAlign.CENTER,
             style_class: 'tokeneater-label tokeneater-grey',
         });
@@ -121,7 +121,7 @@ class TokenEaterIndicator extends PanelMenu.Button {
         this._clearPopupBox();
 
         if (state.error) {
-            this._setLabel('\u25C9 ?', 'tokeneater-grey');
+            this._setLabel('◉ ?', 'tokeneater-grey');
             this._popupBox.add_child(new St.Label({
                 text: `Error: ${state.error}`,
                 style_class: 'tokeneater-footer',
@@ -130,7 +130,7 @@ class TokenEaterIndicator extends PanelMenu.Button {
         }
 
         const sessionPct = state.fiveHour ? Math.round(state.fiveHour.utilization) : 0;
-        this._setLabel(`\u25C9 ${sessionPct}%`, colorClass(sessionPct));
+        this._setLabel(`◉ ${sessionPct}%`, colorClass(sessionPct));
 
         if (state.fiveHour) {
             this._popupBox.add_child(makeMetricRow(
@@ -142,7 +142,7 @@ class TokenEaterIndicator extends PanelMenu.Button {
 
         if (state.sevenDay) {
             this._popupBox.add_child(makeMetricRow(
-                'Weekly \u2014 All',
+                'Weekly — All',
                 Math.round(state.sevenDay.utilization),
                 formatTimeLeft(state.sevenDay.resetsAt),
             ));
@@ -150,7 +150,7 @@ class TokenEaterIndicator extends PanelMenu.Button {
 
         if (state.sevenDaySonnet) {
             this._popupBox.add_child(makeMetricRow(
-                'Weekly \u2014 Sonnet',
+                'Weekly — Sonnet',
                 Math.round(state.sevenDaySonnet.utilization),
                 null,
             ));
@@ -173,7 +173,7 @@ class TokenEaterIndicator extends PanelMenu.Button {
     }
 
     _onError(msg) {
-        this._setLabel('\u25C9 !', 'tokeneater-grey');
+        this._setLabel('◉ !', 'tokeneater-grey');
         this._clearPopupBox();
         this._popupBox.add_child(new St.Label({
             text: msg,

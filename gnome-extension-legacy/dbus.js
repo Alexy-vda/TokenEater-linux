@@ -1,6 +1,8 @@
-// GNOME 45+ D-Bus client for the TokenEater daemon (ESModules).
-import Gio from 'gi://Gio';
-import GLib from 'gi://GLib';
+// GNOME 42-compatible D-Bus client for the TokenEater daemon.
+// Uses imports.gi.* (legacy module system, compatible with GNOME 42-44).
+// For GNOME 45+, the same code works because GNOME 45 keeps backward compat for extensions.
+
+const { Gio, GLib } = imports.gi;
 
 const DBUS_NAME  = 'io.tokeneater.Daemon';
 const DBUS_PATH  = '/io/tokeneater/Daemon';
@@ -20,7 +22,7 @@ const DBUS_XML = `
 
 const DBusProxy = Gio.DBusProxy.makeProxyWrapper(DBUS_XML);
 
-export class TokenEaterDBusClient {
+var TokenEaterDBusClient = class TokenEaterDBusClient {
     constructor(onState, onError) {
         this._onState    = onState;
         this._onError    = onError;
@@ -105,4 +107,4 @@ export class TokenEaterDBusClient {
         }
         this._proxy = null;
     }
-}
+};

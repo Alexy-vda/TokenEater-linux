@@ -91,7 +91,23 @@ echo ""
 echo "Installing GNOME extension..."
 EXT=~/.local/share/gnome-shell/extensions/tokeneater-gnome@io.tokeneater
 mkdir -p "$EXT"
-cp -r "$TMPDIR/gnome-extension/." "$EXT/"
+
+# Detect GNOME Shell version and pick the right extension variant
+GNOME_VER=0
+if command -v gnome-shell &>/dev/null; then
+    GNOME_VER=$(gnome-shell --version | grep -oP '[0-9]+' | head -1)
+fi
+info "GNOME Shell major version: ${GNOME_VER}"
+
+if [[ "$GNOME_VER" -ge 45 ]]; then
+    cp -r "$TMPDIR/gnome-extension/." "$EXT/"
+    info "Installed ESModules variant (GNOME 45+)"
+elif [[ "$GNOME_VER" -ge 42 ]]; then
+    cp -r "$TMPDIR/gnome-extension-legacy/." "$EXT/"
+    info "Installed legacy variant (GNOME 42-44)"
+else
+    warn "GNOME Shell ${GNOME_VER} is not supported (requires 42+). Extension skipped."
+fi
 ok "Extension installed → $EXT"
 
 # ── 6. Install D-Bus activation file ─────────────────────────────────────────
@@ -149,5 +165,5 @@ echo "  Daemon status : systemctl --user status tokeneater"
 echo "  Live D-Bus    : gdbus call --session --dest io.tokeneater.Daemon \\"
 echo "                    --object-path /io/tokeneater/Daemon \\"
 echo "                    --method io.tokeneater.Daemon.GetState"
-echo "  Uninstall     : bash <(curl -fsSL https://raw.githubusercontent.com/${REPO}/main/linux/install.sh) --uninstall"
+echo "  Uninstall     : bash <(curl -fsSL https://raw.githubusercontent.com/${REPO}/main/install.sh) --uninstall"
 echo ""

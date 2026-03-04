@@ -1,25 +1,18 @@
-// GNOME 42-compatible extension entry point.
-// Uses the classic enable()/disable() function pattern with extensionUtils.
+// GNOME 45+ extension entry point (ESModules).
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
+import { TokenEaterIndicator } from './panel.js';
 
-const Main = imports.ui.main;
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const { TokenEaterIndicator } = Me.imports.panel;
+export default class TokenEaterExtension extends Extension {
+    enable() {
+        this._indicator = new TokenEaterIndicator(this);
+        Main.panel.addToStatusArea(this.uuid, this._indicator);
+    }
 
-let _indicator = null;
-
-function init() {
-    // Nothing to do on init for this extension.
-}
-
-function enable() {
-    _indicator = new TokenEaterIndicator(Me);
-    Main.panel.addToStatusArea(Me.uuid, _indicator);
-}
-
-function disable() {
-    if (_indicator) {
-        _indicator.destroy();
-        _indicator = null;
+    disable() {
+        if (this._indicator) {
+            this._indicator.destroy();
+            this._indicator = null;
+        }
     }
 }
