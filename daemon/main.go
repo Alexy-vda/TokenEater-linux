@@ -23,9 +23,20 @@ func main() {
 	notif := newNotifier()
 	refreshCh := make(chan struct{}, 1)
 
-	dbus, err := newDBusServer()
+	// Retry D-Bus connection — the session bus may not be ready yet at boot
+	var dbus *dbusServer
+	for attempt := 1; attempt <= 5; attempt++ {
+		dbus, err = newDBusServer()
+		if err == nil {
+			break
+		}
+		log.Printf("D-Bus server attempt %d/5 failed: %v", attempt, err)
+		if attempt < 5 {
+			time.Sleep(time.Duration(attempt) * 2 * time.Second)
+		}
+	}
 	if err != nil {
-		log.Fatalf("D-Bus server: %v", err)
+		log.Fatalf("D-Bus server: %v (gave up after 5 attempts)", err)
 	}
 	defer dbus.close()
 	dbus.setRefreshCh(refreshCh)
