@@ -7,6 +7,14 @@ const PopupMenu = imports.ui.popupMenu;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const { TokenEaterDBusClient } = Me.imports.dbus;
 
+// ─── Compat helper (GNOME 3.36 uses .actor, GNOME 42+ uses the item directly)
+function addToMenuItem(item, child) {
+    if (typeof item.add_child === 'function')
+        item.add_child(child);
+    else
+        item.actor.add_child(child);
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function colorClass(pct) {
@@ -92,7 +100,7 @@ class TokenEaterIndicator extends PanelMenu.Button {
     _buildPopup() {
         this._contentItem = new PopupMenu.PopupBaseMenuItem({ reactive: false });
         this._popupBox = new St.BoxLayout({ vertical: true, style_class: 'tokeneater-popup' });
-        this._contentItem.add_child(this._popupBox);
+        addToMenuItem(this._contentItem, this._popupBox);
         this.menu.addMenuItem(this._contentItem);
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
@@ -105,8 +113,8 @@ class TokenEaterIndicator extends PanelMenu.Button {
         });
         this._refreshBtn = new St.Button({ label: 'Refresh', style_class: 'button' });
         this._refreshBtn.connect('clicked', () => this._dbus.refresh());
-        footerItem.add_child(this._footerLabel);
-        footerItem.add_child(this._refreshBtn);
+        addToMenuItem(footerItem, this._footerLabel);
+        addToMenuItem(footerItem, this._refreshBtn);
         this.menu.addMenuItem(footerItem);
     }
 
