@@ -14,7 +14,7 @@ Monitor your Claude AI usage limits from the GNOME Shell status bar.
 No repo clone required. Run this one-liner:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/AThevon/TokenEater/main/linux/install.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/Alexy-vda/TokenEater-linux/main/install.sh)
 ```
 
 The script downloads the pre-built daemon binary for your architecture (x86\_64 or aarch64), installs the GNOME extension, the systemd user service, and the D-Bus activation file.
@@ -22,7 +22,7 @@ The script downloads the pre-built daemon binary for your architecture (x86\_64 
 **Uninstall:**
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/AThevon/TokenEater/main/linux/install.sh) --uninstall
+bash <(curl -fsSL https://raw.githubusercontent.com/Alexy-vda/TokenEater-linux/main/install.sh) --uninstall
 ```
 
 <details>
@@ -32,11 +32,11 @@ If you prefer to build the daemon yourself, clone the repo and run:
 
 ```bash
 # 1. Build daemon
-cd linux/daemon && go build -o ~/.local/bin/tokeneater-daemon ./...
+cd daemon && go build -o ~/.local/bin/tokeneater-daemon ./...
 
 # 2. Install GNOME extension
 EXT=~/.local/share/gnome-shell/extensions/tokeneater-gnome@io.tokeneater
-mkdir -p "$EXT" && cp -r linux/gnome-extension/. "$EXT/"
+mkdir -p "$EXT" && cp -r gnome-extension/. "$EXT/"
 
 # 3. Install D-Bus activation file
 mkdir -p ~/.local/share/dbus-1/services
@@ -49,7 +49,7 @@ EOF
 
 # 4. Install systemd user service
 mkdir -p ~/.config/systemd/user
-cp linux/tokeneater.service ~/.config/systemd/user/
+cp tokeneater.service ~/.config/systemd/user/
 systemctl --user daemon-reload
 systemctl --user enable --now tokeneater
 
@@ -80,10 +80,9 @@ gdbus call --session \
 See `docs/plans/2026-02-23-linux-gnome-design.md` for the full design.
 
 ```
-linux/
-  daemon/              # Go daemon — core engine
-  gnome-extension/     # GNOME Shell extension (GJS, GNOME 42+)
-  tokeneater.service   # systemd user service
+daemon/              # Go daemon — core engine
+gnome-extension/     # GNOME Shell extension (GJS, GNOME 42+)
+tokeneater.service   # systemd user service
 ```
 
 - **`daemon/`** — reads `~/.claude/.credentials.json`, calls the Anthropic API,

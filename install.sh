@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # TokenEater — Linux installer
 # Supports GNOME 42+ on Ubuntu 22.04+ / Fedora 38+
-# Usage: bash <(curl -fsSL https://raw.githubusercontent.com/AThevon/TokenEater/main/linux/install.sh)
+# Usage: bash <(curl -fsSL https://raw.githubusercontent.com/Alexy-vda/TokenEater-linux/main/install.sh)
 set -euo pipefail
 
-REPO="AThevon/TokenEater"
+REPO="Alexy-vda/TokenEater-linux"
 GITHUB_API="https://api.github.com/repos/${REPO}/releases/latest"
 GITHUB_RELEASES="https://github.com/${REPO}/releases/download"
 
