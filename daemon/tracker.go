@@ -22,10 +22,15 @@ type LocalTokens struct {
 // sessionLine represents a single line from a Claude session JSONL file.
 type sessionLine struct {
 	Timestamp string `json:"timestamp"`
-	Data      *struct {
+	// message.usage (main format)
+	Message *struct {
+		Usage *usageBlock `json:"usage"`
+	} `json:"message"`
+	// data.usage (alternate format)
+	Data *struct {
 		Usage *usageBlock `json:"usage"`
 	} `json:"data"`
-	// Top-level usage (some formats)
+	// Top-level usage (fallback)
 	Usage *usageBlock `json:"usage"`
 }
 
@@ -114,9 +119,11 @@ func scanFile(path string, windowStart, windowEnd time.Time, tokens *LocalTokens
 			continue
 		}
 
-		// Extract usage block
+		// Extract usage block (try message.usage, data.usage, then top-level)
 		var u *usageBlock
-		if sl.Data != nil && sl.Data.Usage != nil {
+		if sl.Message != nil && sl.Message.Usage != nil {
+			u = sl.Message.Usage
+		} else if sl.Data != nil && sl.Data.Usage != nil {
 			u = sl.Data.Usage
 		} else if sl.Usage != nil {
 			u = sl.Usage
