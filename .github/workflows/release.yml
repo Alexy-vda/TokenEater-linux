@@ -18,11 +18,11 @@ jobs:
           cache-dependency-path: daemon/go.sum
 
       - name: Build daemon (amd64)
-        run: GOOS=linux GOARCH=amd64 go build -o ../tokeneater-daemon-linux-amd64 ./...
+        run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ../tokeneater-daemon-linux-amd64 ./...
         working-directory: daemon
 
       - name: Build daemon (arm64)
-        run: GOOS=linux GOARCH=arm64 go build -o ../tokeneater-daemon-linux-arm64 ./...
+        run: CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ../tokeneater-daemon-linux-arm64 ./...
         working-directory: daemon
 
       - name: Package extras
