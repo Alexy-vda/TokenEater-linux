@@ -72,6 +72,45 @@ func main() {
 		notif.CheckThresholds(usage)
 
 		s := buildState(usage, pacing, nil)
+
+		// Track local token usage aligned to the 5h window
+		if usage.FiveHour != nil && usage.FiveHour.ResetsAt != "" {
+			resetsAt, err := usage.FiveHour.ResetsAtTime()
+			if err == nil {
+				windowStart := resetsAt.Add(-5 * time.Hour)
+				localTokens, err := scanLocalTokens(windowStart, resetsAt)
+				if err != nil {
+					log.Printf("token tracker error: %v", err)
+				} else {
+					s.TokenUsage = &TokenUsageData{
+						InputTokens:         localTokens.InputTokens,
+						OutputTokens:        localTokens.OutputTokens,
+						CacheCreationTokens: localTokens.CacheCreationTokens,
+						CacheReadTokens:     localTokens.CacheReadTokens,
+						TotalTokens:         localTokens.TotalTokens,
+						WindowMinutes:       300,
+					}
+					log.Printf("local tokens (5h window): total=%d (in=%d out=%d cache_create=%d cache_read=%d)",
+						localTokens.TotalTokens, localTokens.InputTokens, localTokens.OutputTokens,
+						localTokens.CacheCreationTokens, localTokens.CacheReadTokens)
+
+					// Store snapshot
+					snap := TokenSnapshot{
+						Timestamp: time.Now(),
+						Window: &WindowInfo{
+							StartsAt: windowStart.Format(time.RFC3339),
+							ResetsAt: usage.FiveHour.ResetsAt,
+						},
+						APIUsage:    buildAPIUsageInfo(usage),
+						LocalTokens: localTokens,
+					}
+					if err := appendSnapshot(snap); err != nil {
+						log.Printf("snapshot storage error: %v", err)
+					}
+				}
+			}
+		}
+
 		dbus.emitStateChanged(s.JSON())
 
 		sessionPct := 0.0

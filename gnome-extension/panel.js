@@ -31,6 +31,12 @@ function formatTimeLeft(resetsAtISO) {
     return `Resets in ${h}h ${m}m`;
 }
 
+function formatTokenCount(n) {
+    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+    if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;
+    return `${n}`;
+}
+
 function pacingLabel(pacing) {
     if (!pacing) return '';
     const sign  = pacing.delta >= 0 ? '+' : '';
@@ -161,6 +167,14 @@ class TokenEaterIndicator extends PanelMenu.Button {
                 text: pacingLabel(state.pacing),
                 style_class: 'tokeneater-metric-label',
                 style: 'padding: 8px 16px 4px;',
+            }));
+        }
+
+        if (state.tokenUsage) {
+            this._popupBox.add_child(new St.Label({
+                text: `Tokens (5h): ${formatTokenCount(state.tokenUsage.totalTokens)}`,
+                style_class: 'tokeneater-metric-label',
+                style: 'padding: 4px 16px;',
             }));
         }
 

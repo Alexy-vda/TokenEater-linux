@@ -7,12 +7,23 @@ import (
 
 // DaemonState is the JSON payload emitted on D-Bus and cached on disk.
 type DaemonState struct {
-	FiveHour       *BucketState `json:"fiveHour,omitempty"`
-	SevenDay       *BucketState `json:"sevenDay,omitempty"`
-	SevenDaySonnet *BucketState `json:"sevenDaySonnet,omitempty"`
-	Pacing         *PacingState `json:"pacing,omitempty"`
-	FetchedAt      time.Time    `json:"fetchedAt"`
-	Error          string       `json:"error,omitempty"`
+	FiveHour       *BucketState    `json:"fiveHour,omitempty"`
+	SevenDay       *BucketState    `json:"sevenDay,omitempty"`
+	SevenDaySonnet *BucketState    `json:"sevenDaySonnet,omitempty"`
+	Pacing         *PacingState    `json:"pacing,omitempty"`
+	TokenUsage     *TokenUsageData `json:"tokenUsage,omitempty"`
+	FetchedAt      time.Time       `json:"fetchedAt"`
+	Error          string          `json:"error,omitempty"`
+}
+
+// TokenUsageData holds the local token counts for the current 5h window.
+type TokenUsageData struct {
+	InputTokens         int64 `json:"inputTokens"`
+	OutputTokens        int64 `json:"outputTokens"`
+	CacheCreationTokens int64 `json:"cacheCreationTokens"`
+	CacheReadTokens     int64 `json:"cacheReadTokens"`
+	TotalTokens         int64 `json:"totalTokens"`
+	WindowMinutes       int   `json:"windowMinutes"`
 }
 
 // BucketState is the serializable form of a UsageBucket.
